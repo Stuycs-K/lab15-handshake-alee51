@@ -9,8 +9,19 @@
 
   returns the file descriptor for the upstream pipe.
   =========================*/
+#define PIPE_NAME "./wkp"
 int server_setup() {
-  int from_client = 0;
+  int from_client = mkfifo(PIPE_NAME, 0666);
+  if (from_client == -1) {
+    perror("mkfifo fail");
+    exit(1);
+  }
+  int wkp = open(PIPE_NAME, O_WRONLY);
+  if (wkp == -1) {
+    perror("open wkp fail");
+    exit(1);
+  }
+  remove(PIPE_NAME);
   return from_client;
 }
 
