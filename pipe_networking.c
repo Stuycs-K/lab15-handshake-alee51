@@ -75,7 +75,21 @@ int client_handshake(int *to_server) {
     perror("open pp fail");
     exit(1);
   }
-  
+  //deleting pp
+  remove(pp);
+
+  //reading SYN_ACK
+  int x;
+  int syn_ack = read(pp, &x, 4);
+  if (syn_ack == -1) {
+    perror("read SYN_ACK fail");
+    exit(1);
+  }
+  //sending ACK
+  int wkp_w = write(PIPE_NAME, &(x+1), 4);
+  if (wkp_w == -1) {
+    perror("write ACK fail");
+  }
   return from_server;
 }
 
