@@ -16,7 +16,7 @@ int server_setup() {
     perror("mkfifo fail");
     exit(1);
   }
-  int wkp = open(PIPE_NAME, O_WRONLY);
+  int wkp = open(PIPE_NAME, O_RDONLY);
   if (wkp == -1) {
     perror("open wkp fail");
     exit(1);
@@ -50,7 +50,32 @@ int server_handshake(int *to_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int client_handshake(int *to_server) {
-  int from_server;
+  //making private pipe
+  char pp[10];
+  int bytes = sprintf(pp, "./%d", getpid());
+  if (bytes == -1) {
+    perrof("sprintf");
+    exit(1);
+  }
+  int from_server = mkfifo(pp, 0666);
+  //opening WKP
+  int wkp_c = open(PIPE_NAME, O_WRONLY);
+  if (wkp_c == -1) {
+    perror("open wkp_c fail");
+  }
+  //writing PP to WKP
+  int wkp_w = write(PIPE_NAME, getpid(), 4);
+  if (wkp_w == -1) {
+    perror("write wkp fail");
+    exit(1);
+  }
+  //opening PP
+  int to_server = open(pp, O_RDONLY);
+  if (to_server == -1) {
+    perror("open pp fail");
+    exit(1);
+  }
+  
   return from_server;
 }
 
