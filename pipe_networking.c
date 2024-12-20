@@ -9,19 +9,18 @@
 
   returns the file descriptor for the upstream pipe.
   =========================*/
-#define PIPE_NAME "./wkp"
 int server_setup() {
-  int from_client = mkfifo(PIPE_NAME, 0666);
-  if (from_client == -1) {
+  int makeWKP = mkfifo(WKP, 0666);
+  if (makeWKP == -1) {
     perror("mkfifo fail");
     exit(1);
   }
-  int wkp = open(PIPE_NAME, O_RDONLY);
-  if (wkp == -1) {
+  int from_client = open(WKP, O_RDONLY);
+  if (from_client == -1) {
     perror("open wkp fail");
     exit(1);
   }
-  remove(PIPE_NAME);
+  remove(WKP);
   return from_client;
 }
 
@@ -35,10 +34,10 @@ int server_setup() {
   returns the file descriptor for the upstream pipe (see server setup).
   =========================*/
 int server_handshake(int *to_client) {
-  int from_client = open(PIPE_NAME, O_RDONLY);
+  int from_client = open(WKP, O_RDONLY);
   //read SYN (pid)
   int pid;
-  int syn = read(PIPE_NAME, &pid, 4);
+  int syn = read(from_client, &pid, 4);
   if (syn == -1) {
     perror("read SYN fail");
     exit(1);
@@ -50,16 +49,16 @@ int server_handshake(int *to_client) {
   //send SYN_ACK (random int)
   int rand_int;
   int r_file = open("/dev/random", O_RDONLY, 0);
-  read(r_file, &rand_int, n);
-  
-  int bytes = write(pp, &rand_int, 4);
+  read(r_file, &rand_int, 4);
+
+  int bytes = write(*to_client, &rand_int, 4);
   if (bytes == -1) {
     perror("write SYN_ACK fail");
     exit(1);
   }
   //read ACK
   int ack;
-  int read = read(PIPE_NAME, &ack, 4);
+  int read = read(from_client, &ack, 4);
   if (ack == rand_int+1) {
     printf("Handshake complete\n");
   }
@@ -80,6 +79,7 @@ int server_handshake(int *to_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int client_handshake(int *to_server) {
+  //client reads from the pp, writes to the wkp
   //making private pipe
   char pp[10];
   int bytes = sprintf(pp, "./%d", getpid());
@@ -87,21 +87,21 @@ int client_handshake(int *to_server) {
     perrof("sprintf");
     exit(1);
   }
-  int from_server = mkfifo(pp, 0666);
+  int make = mkfifo(pp, 0666);
   //opening WKP
-  int wkp_c = open(PIPE_NAME, O_WRONLY);
+  int wkp_c = open(WKP, O_WRONLY);
   if (wkp_c == -1) {
     perror("open wkp_c fail");
   }
   //writing PP to WKP
-  int wkp_w = write(PIPE_NAME, getpid(), 4);
+  int wkp_w = write(*to_server, getpid(), 4);
   if (wkp_w == -1) {
     perror("write wkp fail");
     exit(1);
   }
   //opening PP
-  int to_server = open(pp, O_RDONLY);
-  if (to_server == -1) {
+  int from_server = open(pp, O_RDONLY);
+  if (from_server == -1) {
     perror("open pp fail");
     exit(1);
   }
@@ -110,13 +110,13 @@ int client_handshake(int *to_server) {
 
   //reading SYN_ACK
   int x;
-  int syn_ack = read(pp, &x, 4);
+  int syn_ack = read(from_server, &x, 4);
   if (syn_ack == -1) {
     perror("read SYN_ACK fail");
     exit(1);
   }
   //sending ACK
-  int wkp_w = write(PIPE_NAME, &(x+1), 4);
+  int wkp_w = write(*to_server, &(x+1), 4);
   if (wkp_w == -1) {
     perror("write ACK fail");
   }
