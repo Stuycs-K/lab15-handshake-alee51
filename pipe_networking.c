@@ -35,7 +35,37 @@ int server_setup() {
   returns the file descriptor for the upstream pipe (see server setup).
   =========================*/
 int server_handshake(int *to_client) {
-  int from_client;
+  int from_client = open(PIPE_NAME, O_RDONLY);
+  //read SYN (pid)
+  int pid;
+  int syn = read(PIPE_NAME, &pid, 4);
+  if (syn == -1) {
+    perror("read SYN fail");
+    exit(1);
+  }
+  //open pp
+  char pp[10];
+  sprintf(pp, "./%d", pid);
+  *to_client = open(pp, O_WRONLY);
+  //send SYN_ACK (random int)
+  int rand_int;
+  int r_file = open("/dev/random", O_RDONLY, 0);
+  read(r_file, &rand_int, n);
+  
+  int bytes = write(pp, &rand_int, 4);
+  if (bytes == -1) {
+    perror("write SYN_ACK fail");
+    exit(1);
+  }
+  //read ACK
+  int ack;
+  int read = read(PIPE_NAME, &ack, 4);
+  if (ack == rand_int+1) {
+    printf("Handshake complete\n");
+  }
+  else {
+    printf("Not correct\n");
+  }
   return from_client;
 }
 
