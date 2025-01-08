@@ -1,17 +1,19 @@
 #include "pipe_networking.h"
 
 int main() {
-
   int to_server;
   int from_server;
 
   from_server = client_handshake( &to_server );
+  char s[50];
+  int i = 0;
+
   while (1) {
-    int rand_int;
-    int bytes = read(from_server, &rand_int, 4);
-    if (bytes <= 0) {
-      exit(0);
+    sprintf(s, "client pid %d request #%d", getpid(), i++);
+    if (write(to_server, s, sizeof(s)) == -1) {
+      perror("client write");
+      exit(1);
     }
-    printf("%d\n", rand_int);
+    printf("sent: %s\n", s);
   }
 }

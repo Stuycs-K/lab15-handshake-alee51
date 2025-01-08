@@ -40,6 +40,10 @@ int server_setup() {
   =========================*/
 int server_handshake(int *to_client) {
   int from_client = server_setup();
+  return server_handshake_half(*to_client, from_client);
+}
+
+int server_handshake_half(int *to_client, int from_client) {
   //read SYN (pid)
   int pid;
   int syn = read(from_client, &pid, 4);
