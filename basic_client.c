@@ -15,5 +15,8 @@ int main() {
       exit(1);
     }
     printf("sent: %s\n", s);
+    sleep(1);
   }
+  close(to_server);
+	close(from_server);
 }
