@@ -9,7 +9,7 @@
 
 #ifndef NETWORKING_H
 #define NETWORKING_H
-#define WKP "/tmp/mario146111119"
+#define WKP "/tmp/mario99"
 
 #define HANDSHAKE_BUFFER_SIZE 10
 #define BUFFER_SIZE 1000
