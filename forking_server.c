@@ -22,7 +22,7 @@ int main() {
 
         char buff[256];
         while (1) {
-            if (read(from_client, buff, sizeof(buff)) == -1) {
+            if (read(from_client, buff, sizeof(buff)) <= 0) {
                 break;
             }
             printf("received: %s\n", buff);
