@@ -40,7 +40,7 @@ int server_handshake_half(int *to_client, int from_client) {
 
   //open pp
   char pp[10];
-  sprintf(pp, "/tmp/%d", pid);
+  sprintf(pp, "./%d", pid);
   *to_client = open(pp, O_WRONLY);
 
   //send SYN_ACK (random int)
@@ -98,7 +98,7 @@ int client_handshake(int *to_server) {
   //client reads from the pp, writes to the wkp
   //making private pipe
   char pp[10];
-  int bytes = sprintf(pp, "/tmp/%d", getpid());
+  int bytes = sprintf(pp, "./%d", getpid());
   if (bytes == -1) {
     perror("sprintf");
     exit(1);

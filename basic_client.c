@@ -10,9 +10,8 @@ int main() {
 
   while (1) {
     sprintf(s, "client pid %d request #%d", getpid(), i++);
-    if (write(to_server, s, sizeof(s)) == -1) {
-      perror("client write");
-      exit(1);
+    if (write(to_server, s, sizeof(s)) <= 0) {
+      exit(0);
     }
     printf("sent: %s\n", s);
     sleep(1);
