@@ -6,13 +6,10 @@ static void sighandler(int signo) {
         remove(WKP);
         exit(0);
     }
-    else if (signo == SIGPIPE) {
-        break;
-    }
 }
 
 int main() {
-  signal(SIGPIPE, sighandler);
+  signal(SIGINT, SIG_IGN);
   signal(SIGINT, sighandler);
   int to_client;
   int from_client;
