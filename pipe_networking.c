@@ -29,20 +29,6 @@ int server_setup() {
   return from_client;
 }
 
-/*=========================
-  server_handshake 
-  args: int * to_client
-
-  Performs the server side pipe 3 way handshake.
-  Sets *to_client to the file descriptor to the downstream pipe (Client's private pipe).
-
-  returns the file descriptor for the upstream pipe (see server setup).
-  =========================*/
-int server_handshake(int *to_client) {
-  int from_client = server_setup();
-  return server_handshake_half(*to_client, from_client);
-}
-
 int server_handshake_half(int *to_client, int from_client) {
   //read SYN (pid)
   int pid;
@@ -82,6 +68,20 @@ int server_handshake_half(int *to_client, int from_client) {
     printf("Not correct\n");
   }
   return from_client;
+}
+
+/*=========================
+  server_handshake 
+  args: int * to_client
+
+  Performs the server side pipe 3 way handshake.
+  Sets *to_client to the file descriptor to the downstream pipe (Client's private pipe).
+
+  returns the file descriptor for the upstream pipe (see server setup).
+  =========================*/
+int server_handshake(int *to_client) {
+  int from_client = server_setup();
+  return server_handshake_half(to_client, from_client);
 }
 
 
