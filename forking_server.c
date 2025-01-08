@@ -25,9 +25,10 @@ int main() {
             if (read(from_client, buff, sizeof(buff)) == -1) {
                 break;
             }
-            sleep(1);
             printf("received: %s\n", buff);
+            sleep(1);
         }
+        exit(0);
     }
     close(to_client);
     close(from_client);
